@@ -31,7 +31,7 @@
     <script>
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
-	var vector = new BABYLON.Vector3();
+	var vector = new BABYLON.Vector3(0,0,0);
 
         function createScene() {
             var scene = new BABYLON.Scene(engine);
@@ -58,7 +58,7 @@
 			box.position.scaleInPlace(4);
 
 			var axis2 = vector;
-			var axis3 = new BABYLON.Vector3();
+			var axis3 = new BABYLON.Vector3(0,0,0);
 			axis3.x = Math.cos(camera.rotation.x)*Math.sin(camera.rotation.y);
 			axis3.y = -Math.sin(camera.rotation.x);
 			axis3.z = Math.cos(camera.rotation.x)*Math.cos(camera.rotation.y);
@@ -77,11 +77,13 @@
 
 		if(cameraToggle) {
 		    camera.upVector.copyFrom(vector);
-		    camera.rotation.addInPlace(rotationThing);
+		    //camera.rotation.addInPlace(rotationThing);
 
-		    //camera.rotation.x = 0;
+		    camera.rotation.x *= Math.cos(camera.rotation.y);
 		    //camera.rotation.y
 		    //camera.rotation.z
+
+		    camera.rotation.y += Math.PI/4;
 		} else {
 		    camera.upVector.copyFromFloats(0,1,0);
                     //camera.rotation.copyFromFloats(0,0,0);
