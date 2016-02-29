@@ -11,7 +11,7 @@
         <script src="http://www.babylonjs.com/babylon.js"></script>
         <style>
             html, body {
-                overflow: hidden;
+		overflow: hidden;
                 width: 100%;
                 height: 100%;
                 margin: 0;
@@ -23,6 +23,7 @@
                 height: 100%;
                 touch-action: none;
             }
+
         </style>
     </head>
 <body>
@@ -30,6 +31,7 @@
     <script>
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
+	var vector = new BABYLON.Vector3();
 
         function createScene() {
             var scene = new BABYLON.Scene(engine);
@@ -39,14 +41,52 @@
         
             camera.attachControl(canvas, true);
 
+	    var cameraToggle = false;
+
             var box = BABYLON.Mesh.CreateBox("Box", 1.0, scene);
+
+	    var rotationThing;
 	
             scene.registerBeforeRender(function () {
-		box.position.x = Math.sin(camera.rotation.x)*Math.sin(camera.rotation.y);
-		box.position.y = Math.cos(camera.rotation.x);
-		box.position.z = Math.sin(camera.rotation.x)*Math.cos(camera.rotation.y);
-		box.position.scaleInPlace(4);
+
+		if(!cameraToggle) {
+			vector.x = Math.sin(camera.rotation.x)*Math.sin(camera.rotation.y);
+			vector.y = Math.cos(camera.rotation.x);
+			vector.z = Math.sin(camera.rotation.x)*Math.cos(camera.rotation.y);
+	     
+		        box.position.copyFrom(vector);
+			box.position.scaleInPlace(4);
+
+			var axis2 = vector;
+			var axis3 = new BABYLON.Vector3();
+			axis3.x = Math.cos(camera.rotation.x)*Math.sin(camera.rotation.y);
+			axis3.y = -Math.sin(camera.rotation.x);
+			axis3.z = Math.cos(camera.rotation.x)*Math.cos(camera.rotation.y);
+
+			var axis1 = BABYLON.Vector3.Cross(axis2, axis3);
+
+			rotationThing = BABYLON.Vector3.RotationFromAxis(axis1, axis2, axis3);
+			console.log(rotationThing);
+		} else {
+			//camera.rotation.x = 0;
+		}
 	    });
+
+            window.addEventListener("keypress", function() {
+		cameraToggle = !cameraToggle;
+
+		if(cameraToggle) {
+		    camera.upVector.copyFrom(vector);
+		    camera.rotation.addInPlace(rotationThing);
+
+		    //camera.rotation.x = 0;
+		    //camera.rotation.y
+		    //camera.rotation.z
+		} else {
+		    camera.upVector.copyFromFloats(0,1,0);
+                    //camera.rotation.copyFromFloats(0,0,0);
+		}
+            });
         
             var material1 = new BABYLON.StandardMaterial("mat1", scene);
             material1.diffuseColor = new BABYLON.Color3(1, 1, 0);
@@ -95,6 +135,7 @@
         window.addEventListener("resize", function () {
             engine.resize();
         });
+
     </script>
 </body>
 </html>
